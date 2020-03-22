@@ -86,6 +86,7 @@ pub fn get_appcenter_error(output: &Output) -> Error {
 pub fn get_appcenter_deployment_history(
     app: &str,
     deployment: &str,
+    appcenter_token: &str,
 ) -> Result<Vec<AppCenterPackage>, Error> {
     let appcenter_bin = if Path::new(APPCENTER_NPM_PATH).exists() {
         APPCENTER_NPM_PATH
@@ -93,8 +94,15 @@ pub fn get_appcenter_deployment_history(
         APPCENTER_BIN_PATH
     };
 
+    let appcenter_token_cmd = if appcenter_token != "" {
+      format!("--token {}", appcenter_token) 
+    } else {
+        format!("")
+    };
+
     let output = Command::new(appcenter_bin)
         .arg("codepush")
+        .arg(appcenter_token_cmd)
         .arg("deployment")
         .arg("history")
         .arg(deployment)
@@ -117,8 +125,8 @@ pub fn get_appcenter_deployment_history(
     }
 }
 
-pub fn get_appcenter_package(app: &str, deployment: &str) -> Result<AppCenterPackage, Error> {
-    let history = get_appcenter_deployment_history(app, deployment)?;
+pub fn get_appcenter_package(app: &str, deployment: &str, appcenter_token: &str) -> Result<AppCenterPackage, Error> {
+    let history = get_appcenter_deployment_history(app, deployment, appcenter_token)?;
     if let Some(latest) = history.into_iter().last() {
         Ok(latest)
     } else {

@@ -81,6 +81,12 @@ pub fn make_app<'a, 'b: 'a>(app: App<'a, 'b>) -> App<'a, 'b> {
                 .long("wait")
                 .help("Wait for the server to fully process uploaded files."),
         )
+        .arg(
+          Arg::with_name("appcenter_token")
+              .long("appcenter_token")
+              .value_name("APPCENTER_TOKEN")
+              .help("AppCenter Authentication Token"),
+      )
 }
 
 pub fn execute<'a>(matches: &ArgMatches<'a>) -> Result<(), Error> {
@@ -91,6 +97,8 @@ pub fn execute<'a>(matches: &ArgMatches<'a>) -> Result<(), Error> {
     let app = matches.value_of("app_name").unwrap();
     let platform = matches.value_of("platform").unwrap();
     let deployment = matches.value_of("deployment").unwrap_or("Staging");
+    let appcenter_token = matches.value_of("appcenter_token").unwrap_or("");
+
     let api = Api::current();
     let print_release_name = matches.is_present("print_release_name");
 
@@ -106,7 +114,7 @@ pub fn execute<'a>(matches: &ArgMatches<'a>) -> Result<(), Error> {
         );
     }
 
-    let package = get_appcenter_package(app, deployment)?;
+    let package = get_appcenter_package(app, deployment, appcenter_token)?;
     let release = get_react_native_appcenter_release(
         &package,
         platform,
